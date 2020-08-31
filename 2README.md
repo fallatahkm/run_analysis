@@ -1,40 +1,40 @@
-######-----------------##############
-## 1. Merges the training and the test sets to create one data set.
-## 2. Extracts only the measurements on the mean and standard deviation for each measurement.
-## 3. Uses descriptive activity names to name the activities in the data set
-## 4. Appropriately labels the data set with descriptive variable names.
-## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-library(dplyr)
-library(tidyverse)
-features <- read.table("./R/assign3/UCI HAR Dataset/features.txt", col.names = c("n","functions"))
-activities <- read.table("./R/assign3/UCI HAR Dataset/activity_labels.txt", col.names = c("code", "activity"))
-subject_test <- read.table("./R/assign3/UCI HAR Dataset/test/subject_test.txt", col.names = "subject")
-x_test <- read.table("./R/assign3/UCI HAR Dataset/test/X_test.txt", col.names = features$functions)
-y_test <- read.table("./R/assign3/UCI HAR Dataset/test/y_test.txt", col.names = "code")
-subject_train <- read.table("./R/assign3/UCI HAR Dataset/train/subject_train.txt", col.names = "subject")
-x_train <- read.table("./R/assign3/UCI HAR Dataset/train/X_train.txt", col.names = features$functions)
-y_train <- read.table("./R/assign3/UCI HAR Dataset/train/y_train.txt", col.names = "code")
-xmerge <- rbind(x_train, x_test)
-ymerge <- rbind(y_train, y_test)
-subjectmerge <- rbind(subject_train, subject_test)
-mergedata <- cbind(subjectmerge, xmerge, ymerge)
-TidyData <- mergedata %>% select(subject, code, contains("mean"), contains("std"))
-TidyData$code <- activities[TidyData$code, 2]
-names(TidyData)[2] = "activity"
-names(TidyData)<-gsub("Acc", "Accelerometer", names(TidyData))
-names(TidyData)<-gsub("Gyro", "Gyroscope", names(TidyData))
-names(TidyData)<-gsub("BodyBody", "Body", names(TidyData))
-names(TidyData)<-gsub("Mag", "Magnitude", names(TidyData))
-names(TidyData)<-gsub("^t", "Time", names(TidyData))
-names(TidyData)<-gsub("^f", "Frequency", names(TidyData))
-names(TidyData)<-gsub("tBody", "TimeBody", names(TidyData))
-names(TidyData)<-gsub("-mean()", "Mean", names(TidyData), ignore.case = TRUE)
-names(TidyData)<-gsub("-std()", "STD", names(TidyData), ignore.case = TRUE)
-names(TidyData)<-gsub("-freq()", "Frequency", names(TidyData), ignore.case = TRUE)
-names(TidyData)<-gsub("angle", "Angle", names(TidyData))
-names(TidyData)<-gsub("gravity", "Gravity", names(TidyData))
-FinalData <- TidyData %>% 
-        group_by(subject, activity) %>% 
-        summarise_all(funs(mean))
-write.table(FinalData, "FinalData.txt", row.name=FALSE)
-head(FinalData)
+# impoer the data to R program, use read.table from the test fiel
+# both x and y file
+txdata <- read.table("./R/assign3/UCI HAR Dataset/test/x_test.txt")
+tydata <- read.table("./R/assign3/UCI HAR Dataset/test/y_test.txt")
+#rename the y as response 
+names(tydata)<- "Respons"
+#import features which considered as headers
+tsdata <- read.table("./R/assign3/UCI HAR Dataset/features.txt")
+#change it as vector
+daname <- as.vector(tsdata$V2)
+#chage the name for x testing file
+names(txdata) <- daname
+#marege the x and y test file
+txydata <- cbind(tydata,txdata)
+head(txydata)
+###----------------------###
+# do same to training file
+rxdata <- read.table("./R/assign3/UCI HAR Dataset/train/x_train.txt")
+rydata <- read.table("./R/assign3/UCI HAR Dataset/train/y_train.txt")
+names(rydata)<- "Respons"
+tsdata <- read.table("./R/assign3/UCI HAR Dataset/features.txt")
+#daname <- as.vector(tsdata$V2)
+names(rxdata) <- daname
+rxydata <- cbind(rydata,rxdata)
+head(rxydata)
+##########-----------------#####
+# marerge the both data frames to get general one
+gedata <- rbind(txydata,rxydata)
+###########-------------#######
+#download stringer to select column column has mean or std
+dstd <- gedata[,grep( "std" ,names(gedata))]
+dmean <- gedata[,grep( "mean" ,names(gedata))]
+dmstd <- cbind(dmean,dstd)
+dim(dmstd)
+write.table(dmstd,"run2_analysis.txt", row.names = FALSE)
+###------------------------####
+###########---------------################
+#summary of the data
+data_symmary <- sapply(dmstd,summary)
+write.table(data_symmary,"run_summary.txt", row.names = FALSE)
