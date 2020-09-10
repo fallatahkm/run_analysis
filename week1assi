@@ -1,0 +1,47 @@
+library(tidyverse)
+library(readr)
+
+df <- read_csv2("household_power_consumption.txt", 
+                 col_types = "ctnnnnnnn")
+df <- na.omit(dff)
+dim(df)
+glimpse(df)
+summary(df)
+
+datatidy <- filter(df,Date %in% c("1/2/2007", "2/2/2007"))
+
+date_time <- strptime(paste(datatidy$Date,datatidy$Time , sep = " "), 
+                      "%d/%m/%Y %H:%M:%S")
+
+hist(datatidy$Global_active_power,col="red",
+              xlab="Global Active Power(kilowatts)",
+              main="Global Active Power")
+
+plot(date_time,datatidy$Global_active_power,
+     ylab="Global Active Power(kilowatts)",
+             xlab="",type="l")
+
+plot(date_time,datatidy$Sub_metering_1,type="n",xlab = "",
+     ylab="Energy sub metering")
+        lines(date_time,datatidy$Sub_metering_1,col="black")
+        lines(date_time,datatidy$Sub_metering_2,col="red")
+        lines(date_time,datatidy$Sub_metering_3,col="blue")
+        legend("topright",lty=c(1,1,1),col=c("black","red","blue"),
+               legend=c("Sub_meeting_1","Sub_meeting_2","Sub_meeting_3"))
+
+par(mfrow=c(2,2))
+
+plot(date_time,datatidy$Global_active_power,
+     ylab="Global Active Power",xlab="",type="l")
+        plot(date_time,datatidy$Voltage,ylab="Voltage",type="l")
+        plot(date_time,datatidy$Sub_metering_1,type="n",xlab = "",
+             ylab="Energy sub metering")
+        lines(date_time,datatidy$Sub_metering_1,col="black")
+        lines(date_time,datatidy$Sub_metering_2,col="red")
+        lines(date_time,datatidy$Sub_metering_3,col="blue")
+        legend("topright",lty=c(1,1,1),col=c("black","red","blue"),
+               legend=c("Sub_meeting_1","Sub_meeting_2" ,"Sub_meeting_3"))
+        plot(date_time,datatidy$Global_reactive_power,type="l",
+             ylab="Global_reactive_power")
+
+        
